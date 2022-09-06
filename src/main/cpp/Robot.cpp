@@ -5,7 +5,7 @@
 #include <frc/Joystick.h>
 #include <frc/TimedRobot.h>
 #include <frc/drive/DifferentialDrive.h>
-#include <frc/motorcontrol/PWMSparkMax.h>
+#include <ctre/Phoenix.h>
 
 /**
  * This is a demo program showing the use of the DifferentialDrive class.
@@ -13,16 +13,26 @@
  */
 class Robot : public frc::TimedRobot {
 
+  WPI_VictorSPX leftMaster {1};
+  WPI_VictorSPX leftSlave {3};
+
+  WPI_VictorSPX rightMaster {2};
+  WPI_VictorSPX rightSlave {4};
+
+  frc::DifferentialDrive m_robotDrive{leftMaster, rightMaster};
+  frc::Joystick m_Joystick{0};
+
  public:
   void RobotInit() override {
-    // We need to invert one side of the drivetrain so that positive voltages
-    // result in both sides moving forward. Depending on how your robot's
-    // gearbox is constructed, you might have to invert the left side instead.
+    rightMaster.SetInverted(true);
+    rightSlave.SetInverted(true);
 
+    rightSlave.Follow(rightMaster);
+    leftSlave.Follow(leftMaster);
   }
 
   void TeleopPeriodic() override {
-    // Drive with arcade style
+    m_robotDrive.ArcadeDrive(-m_Joystick.GetY(), m_Joystick.GetX());
   }
 };
 
